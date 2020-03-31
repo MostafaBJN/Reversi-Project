@@ -8,6 +8,7 @@ public class Block {
     private static final String WHITE_CIRCLE = "◎";
     private static final String EMPTY_BLOCK = "▢";
     private static final String AVAILABLE_BLOCK = "◍";
+    private static boolean guideForPutting;
     private String sign;
     //Coordinates Number : 1,2,3,4,5,6,7,8
     private int coordinatesNum;
@@ -35,7 +36,10 @@ public class Block {
 
     public void availableBlock(int player){
         state = -player;
-        sign = AVAILABLE_BLOCK;
+        if(guideForPutting)
+            sign = AVAILABLE_BLOCK;
+        else
+            sign = EMPTY_BLOCK;
     }
 
     public void emptyBlock(){
@@ -61,10 +65,6 @@ public class Block {
         return sign;
     }
 
-    public void setSign(String sign) {
-        this.sign = sign;
-    }
-
     public int getState() {
         return state;
     }
@@ -79,5 +79,9 @@ public class Block {
 
     public char getCoordinatesChar() {
         return coordinatesChar;
+    }
+
+    public static void setGuideForPutting(boolean guideForPutting) {
+        Block.guideForPutting = guideForPutting;
     }
 }
