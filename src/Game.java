@@ -1,4 +1,4 @@
-import javax.swing.plaf.synth.SynthOptionPaneUI;
+import javax.swing.*;
 import java.util.ArrayList;
 
 /**
@@ -7,191 +7,171 @@ import java.util.ArrayList;
 public class Game {
     private Board gameBoardNow;
     private ArrayList<Board> boards;
+    private boolean systemPlayer;
 
     public Game(){
         gameBoardNow = new Board();
         boards = new ArrayList<Board>();
         boards.add(gameBoardNow);
+        systemPlayer = false;
     }
 
-    public boolean putter(Block blockToPut,int player) {
+    /**
+     *
+     */
+    public void reverser(Block block, int player) {
+        int blockCoordinatesH = block.getCoordinatesChar() - 65;
+        int blockCoordinatesV = block.getCoordinatesNum() - 1;
+        int size = Board.SIZE;
+        //I<0 Up , I>0 Down , J<0 Left , J>0 Right
+        directionReverse(blockCoordinatesH, blockCoordinatesV, size, player, 1, 0);
+        directionReverse(blockCoordinatesH, blockCoordinatesV, size, player, -1, 0);
+        directionReverse(blockCoordinatesH, blockCoordinatesV, size, player, 0, -1);
+        directionReverse(blockCoordinatesH, blockCoordinatesV, size, player, 0, 1);
+        directionReverse(blockCoordinatesH, blockCoordinatesV, size, player, 1, -1);
+        directionReverse(blockCoordinatesH, blockCoordinatesV, size, player, -1, 1);
+        directionReverse(blockCoordinatesH, blockCoordinatesV, size, player, -1, -1);
+        directionReverse(blockCoordinatesH, blockCoordinatesV, size, player, 1, 1);
+
+    }
+
+    private void directionReverse (int horizontal, int vertical, int size, int player, int dirI, int dirJ){
+        for(int j = horizontal + dirJ, i = vertical + dirI;j >=0 && j < 8 && i >= 0 && i < 8; j+=dirJ, i+=dirI) {
+            Block blockToCheck = gameBoardNow.getBlocks().get(i * size + j);
+            if(blockToCheck.getState() > 0) {
+                if(blockToCheck.getState() == player) {
+                    for (j-=dirJ, i-=dirI; ((j*dirJ) >= (horizontal*dirJ + dirJ*dirJ)) && ((i*dirI) >= (vertical*dirI + dirI*dirI)); j-=dirJ, i-=dirI) {
+                        Block blockToChange = gameBoardNow.getBlocks().get(i * size + j);
+                        blockToChange.colorBlock(player);
+                    }
+                    return;
+                }
+            }
+            else{
+                return;
+            }
+        }
+    }
+
+    /**
+     *
+     */
+    public int score(int player) {
+        int score = 0;
+        for(Block block:gameBoardNow.getBlocks()){
+            if(block.getState() == player)
+                score++;
+        }
+        return score;
+    }
+
+    /**
+     *
+     */
+    public void showScores() {
+        System.out.println("White : " + score(1));
+        System.out.println("Black : " + score(2));
+    }
+
+    /**
+     *
+     */
+    public boolean endCheck() {
+        for(Block block:gameBoardNow.getBlocks()){
+            if(block.getState() < 1)
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     *
+     */
+    public boolean pass(int player){
+        for(Block block:gameBoardNow.getBlocks()){
+            if(block.getState() == -player)
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     *
+     */
+    public boolean putter(Block blockToPut, int player) {
         for (Block block:gameBoardNow.getBlocks()) {
             if(block.equals(blockToPut)){
-                //if(block.getState()==(-player)) {
-                    block.fullBlock(player);
-                    System.out.println("Putting Completed");
+                if(block.getState()==(-player)) {
+                    block.colorBlock(player);
+                    reverser(block, player);
                     return true;
-                //}
-                //else{
-                  //  System.out.println("Not Allowed");
-                    //return false;
-                //}
+                }
+                else{
+                    System.out.println("Not Allowed");
+                    return false;
+                }
             }
         }
         return false;
     }
 
-    public void gettingReady(){
-        gameBoardNow.getBlocks().get((4-1)*Board.SIZE + (4-1)).fullBlock(1);
-        gameBoardNow.getBlocks().get((5-1)*Board.SIZE + (5-1)).fullBlock(1);
-        gameBoardNow.getBlocks().get((4-1)*Board.SIZE + (5-1)).fullBlock(2);
-        gameBoardNow.getBlocks().get((5-1)*Board.SIZE + (4-1)).fullBlock(2);
-        gameBoardNow.getBlocks().get((3-1)*Board.SIZE + (5-1)).fullBlock(2);
-        gameBoardNow.getBlocks().get((3-1)*Board.SIZE + (4-1)).fullBlock(2);
+    /**
+     *
+     */
+    public void removeAvailableBlocks() {
+        for (Block block:gameBoardNow.getBlocks()) {
+            if(block.getState() < 0)
+                block.emptyBlock();
+        }
     }
 
+    /**
+     *
+     */
     public void findAvailableBlocks(int player){
         for (Block block:gameBoardNow.getBlocks()) {
             //be empty
-            if(block.getState() == 0) {//////////////HHHHHHHHHHH=CCCCCCCCCCCC      VVVVVVVVVVVV=NNNNNNNNNNN
+            if(block.getState() == 0) {
 
                 int blockCoordinatesH = block.getCoordinatesChar() - 65;
                 int blockCoordinatesV = block.getCoordinatesNum() - 1;
                 int size = Board.SIZE;
-                //Up
-                if(up(blockCoordinatesH, blockCoordinatesV, size, player, block))
-                  continue;
-                //Down
-                if(down(blockCoordinatesH, blockCoordinatesV, size, player, block))
-                    continue;
-                //Right
-                if(right(blockCoordinatesH, blockCoordinatesV, size, player, block))
-                  continue;
-                //Left
-                if(left(blockCoordinatesH, blockCoordinatesV, size, player, block))
-                   continue;
-                //Up-Right
-                if(upRight(blockCoordinatesH, blockCoordinatesV, size, player, block))
-                    continue;
-                //Up-Left
-                if(upLeft(blockCoordinatesH, blockCoordinatesV, size, player, block))
-                    continue;
-                //Down-Right
-                if(downRight(blockCoordinatesH, blockCoordinatesV, size, player, block))
-                    continue;
-                //Down-Left
-                if(downLeft(blockCoordinatesH, blockCoordinatesV, size, player, block))
-                    continue;
-
+                if(directionChecker(blockCoordinatesH, blockCoordinatesV, size, player, block, 0, 1));
+                else if(directionChecker(blockCoordinatesH, blockCoordinatesV, size, player, block, 0, -1));
+                else if(directionChecker(blockCoordinatesH, blockCoordinatesV, size, player, block, 1, 0));
+                else if(directionChecker(blockCoordinatesH, blockCoordinatesV, size, player, block, 1, 1));
+                else if(directionChecker(blockCoordinatesH, blockCoordinatesV, size, player, block, 1, -1));
+                else if(directionChecker(blockCoordinatesH, blockCoordinatesV, size, player, block, -1, 0));
+                else if(directionChecker(blockCoordinatesH, blockCoordinatesV, size, player, block, -1, 1));
+                else if(directionChecker(blockCoordinatesH, blockCoordinatesV, size, player, block, -1, -1));
             }
         }
     }
 
-    private boolean down(int horizontal, int vertical, int size, int player, Block block){
-        //down
-        for(int i = vertical - 1, count = 0; i >= 0; i--, count++) {
-            Block blockToCheck = gameBoardNow.getBlocks().get(i * size + horizontal);
-            int check = checkBlock(block, blockToCheck, player, count);
-            if(check == 1)
-                return true;
-            else if(check == -1)
-                break;
-        }
-        return false;
-    }
-
-    private boolean up(int horizontal, int vertical, int size, int player, Block block){
-        //Up
-        for(int i = vertical + 1, count = 0; i < 8; i++, count++) {
-            Block blockToCheck = gameBoardNow.getBlocks().get(i * size + horizontal);
-            int check = checkBlock(block, blockToCheck, player, count);
-            if(check == 1)
-                return true;
-            else if(check == -1)
-                break;
-        }
-        return false;
-    }
-
-    private boolean left(int horizontal, int vertical, int size, int player, Block block){
-        //Left
-        for(int j = horizontal + 1, count = 0; j < 8; j++, count++) {
-            Block blockToCheck = gameBoardNow.getBlocks().get(vertical * size + j);
-            int check = checkBlock(block, blockToCheck, player, count);
-            if(check == 1)
-                return true;
-            else if(check == -1)
-                break;
-        }
-        return false;
-    }
-
-    private boolean right(int horizontal, int vertical, int size, int player, Block block){
-        //Right
-        for(int j = horizontal - 1, count = 0; j >= 0; j--, count++) {
-            Block blockToCheck = gameBoardNow.getBlocks().get(vertical * size + j);
-            int check = checkBlock(block, blockToCheck, player, count);
-            if(check == 1)
-                return true;
-            else if(check == -1)
-                break;
-        }
-        return false;
-    }
-
-    private boolean downRight(int horizontal, int vertical, int size, int player, Block block){
-        //Down - Right
-        for(int j = horizontal - 1, i = vertical - 1, count = 0; j >= 0 && i >= 0; j--, i--, count++) {
+    private boolean directionChecker(int horizontal, int vertical, int size, int player, Block block,int dirI, int dirJ){
+        for(int i = vertical + dirI, j = horizontal + dirJ, count = 0; j >=0 && j < 8 && i >= 0 && i < 8; j+=dirJ, i+=dirI, count++) {
             Block blockToCheck = gameBoardNow.getBlocks().get(i * size + j);
             int check = checkBlock(block, blockToCheck, player, count);
-            if(check == 1)
+            if (check == 1)
                 return true;
-            else if(check == -1)
+            else if (check == -1)
                 break;
         }
         return false;
     }
 
-    private boolean upLeft(int horizontal, int vertical, int size, int player, Block block){
-        //Up - Left
-        for(int j = horizontal + 1, i = vertical - 1, count = 0; j < 8 && i >= 0; j++, i--, count++) {
-            Block blockToCheck = gameBoardNow.getBlocks().get(i * size + j);
-            int check = checkBlock(block, blockToCheck, player, count);
-            if(check == 1)
-                return true;
-            else if(check == -1)
-                break;
-        }
-        return false;
-    }
-
-    private boolean upRight(int horizontal, int vertical, int size, int player, Block block){
-        //Up - Right
-        for(int j = horizontal - 1, i = vertical + 1, count = 0; j >= 0 && i < 8; j--, i++, count++) {
-            Block blockToCheck = gameBoardNow.getBlocks().get(i * size + j);
-            int check = checkBlock(block, blockToCheck, player, count);
-            if(check == 1)
-                return true;
-            else if(check == -1)
-                break;
-        }
-        return false;
-    }
-
-    private boolean downLeft(int horizontal, int vertical, int size, int player, Block block){
-        //Down - Left
-        for(int j = horizontal + 1, i = vertical + 1, count = 0; j < 8 && i < 8; j++, i++, count++) {
-            Block blockToCheck = gameBoardNow.getBlocks().get(i * size + j);
-            int check = checkBlock(block, blockToCheck, player, count);
-            if(check == 1)
-                return true;
-            else if(check == -1)
-                break;
-        }
-        return false;
-    }
-
-    private int checkBlock(Block block, Block blockToCheck, int player, int count){
+    private int checkBlock(Block block, Block blockToCheck, int player, int count){ ;
         if (count == 0 && blockToCheck.getState() == player) {
             return -1;
         }
         if (blockToCheck.getState() > 0) {
-            if(checkPlayer(block, blockToCheck, player))
+            if (checkPlayer(block, blockToCheck, player)) {
                 return 1;
-            else
+            }
+            else {
                 return 0;
-        }
-        else
+            }
+        } else
             return -1;
     }
 
@@ -200,31 +180,36 @@ public class Game {
             block.availableBlock(player);
             return true;
         }
-        else
-            return false;
+        return false;
     }
 
-
-    public void Reverser() {
-
+    /**
+     *
+     */
+    public void gettingReady(){
+        gameBoardNow.getBlocks().get((4-1)*Board.SIZE + (4-1)).colorBlock(1);
+        gameBoardNow.getBlocks().get((5-1)*Board.SIZE + (5-1)).colorBlock(1);
+        gameBoardNow.getBlocks().get((4-1)*Board.SIZE + (5-1)).colorBlock(2);
+        gameBoardNow.getBlocks().get((5-1)*Board.SIZE + (4-1)).colorBlock(2);
     }
 
-    public void removeAvailableBlocks() {
-        for (Block block:gameBoardNow.getBlocks()) {
-            if(block.getState() < 0)
-                block.emptyBlock();
-        }
-    }
-
-    public Board undo(int time){
-        return boards.get(time);
-    }
-
-    public Board getGameBoard() {
+    public Board getGameBoardNow() {
         return gameBoardNow;
     }
 
-    public void setGameBoard(Board gameBoardNow) {
+    public void setGameBoardNow(Board gameBoardNow) {
         this.gameBoardNow = gameBoardNow;
+    }
+
+    public ArrayList<Board> getBoards() {
+        return boards;
+    }
+
+    public void setBoards(ArrayList<Board> boards) {
+        this.boards = boards;
+    }
+
+    public void setSystemPlayer(boolean systemPlayer) {
+        this.systemPlayer = systemPlayer;
     }
 }

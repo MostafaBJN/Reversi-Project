@@ -17,14 +17,21 @@ public class Block {
     //State of block : Empty = 0 , White = 1 , Black = 2 , Available for White = -1 , Available For Black = -2
     private int state;
 
+    /**
+     *
+     */
     public Block(char coordinatesChar, int coordinatesNum) {
         sign = "▢";
         this.coordinatesChar = coordinatesChar;
         this.coordinatesNum = coordinatesNum;
         state = 0;
+        guideForPutting = true;
     }
 
-    public void fullBlock(int player){
+    /**
+     *
+     */
+    public void colorBlock(int player){
         state = player;
         if(player == 1) {
             sign = WHITE_CIRCLE;
@@ -34,6 +41,9 @@ public class Block {
         }
     }
 
+    /**
+     *
+     */
     public void availableBlock(int player){
         state = -player;
         if(guideForPutting)
@@ -42,6 +52,9 @@ public class Block {
             sign = EMPTY_BLOCK;
     }
 
+    /**
+     *
+     */
     public void emptyBlock(){
         state = 0;
         sign = EMPTY_BLOCK;

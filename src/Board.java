@@ -8,11 +8,17 @@ public class Board {
     private ArrayList<Block> blocks;
 
 
+    /**
+     *
+     */
     public Board(){
         blocks = new ArrayList<Block>();
         emptyBoardMaker();
     }
 
+    /**
+     *
+     */
     private void emptyBoardMaker(){
         for (int i = 1; i < SIZE + 1; i++) {
             for (int j = 1; j < SIZE + 1; j++) {
@@ -21,6 +27,9 @@ public class Board {
         }
     }
 
+    /**
+     *
+     */
     public void print(){
         for (int i = 0; i < SIZE ; i++) {
             if(i==0){
@@ -37,8 +46,17 @@ public class Board {
         }
     }
 
+    /**
+     *
+     */
     public ArrayList<Block> getBlocks() {
         return blocks;
     }
 
+    /**
+     *
+     */
+    public void setBlocks(ArrayList<Block> blocks) {
+        this.blocks = blocks;
+    }
 }
