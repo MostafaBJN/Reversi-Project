@@ -1,4 +1,3 @@
-import javax.swing.*;
 import java.util.ArrayList;
 
 /**
@@ -7,13 +6,13 @@ import java.util.ArrayList;
 public class Game {
     private Board gameBoardNow;
     private ArrayList<Board> boards;
-    private boolean systemPlayer;
 
+    /**
+     *
+     */
     public Game(){
         gameBoardNow = new Board();
         boards = new ArrayList<Board>();
-        boards.add(gameBoardNow);
-        systemPlayer = false;
     }
 
     /**
@@ -193,6 +192,41 @@ public class Game {
         gameBoardNow.getBlocks().get((5-1)*Board.SIZE + (4-1)).colorBlock(2);
     }
 
+    public Block playWithSystem(){
+        char c = 0;
+        int n = 0;
+        int size = Board.SIZE;
+        //4 corner
+        for(c = 0; c < 8; c+=7)
+            for (n = 0; n < 8; n+=7)
+                if(gameBoardNow.getBlocks().get(n * size + c).getState() < 0)
+                    return new Block((char)(c + 65), n + 1);
+        //1 & 8 lines
+        for(c = 0; c < 8; c+=7)
+            for(n = 1; n < 7; n++)
+                if(gameBoardNow.getBlocks().get(n * size + c).getState() < 0)
+                    return new Block((char)(c + 65), n + 1);
+        for(n = 0; n < 8; n+=7)
+            for(c = 1; c < 7; c++)
+                if(gameBoardNow.getBlocks().get(n * size + c).getState() < 0)
+                    return new Block((char)(c + 65), n + 1);
+        //4*4 squer
+        for(c = 2; c < 6; c++)
+            for (n = 2; n < 6; n++)
+                if(gameBoardNow.getBlocks().get(n * size + c).getState() < 0)
+                    return new Block((char)(c + 65), n + 1);
+        //2 & 7 lines
+        for(c = 1; c < 7; c+=5)
+            for(n = 1; n < 7; n++)
+                if(gameBoardNow.getBlocks().get(n * size + c).getState() < 0)
+                    return new Block((char)(c + 65), n + 1);
+        for(n = 1; n < 7; n+=5)
+            for(c = 1; c < 7; c++)
+                if(gameBoardNow.getBlocks().get(n * size + c).getState() < 0)
+                    return new Block((char)(c + 65), n + 1);
+        return null;
+    }
+
     public Board getGameBoardNow() {
         return gameBoardNow;
     }
@@ -209,7 +243,4 @@ public class Game {
         this.boards = boards;
     }
 
-    public void setSystemPlayer(boolean systemPlayer) {
-        this.systemPlayer = systemPlayer;
-    }
 }

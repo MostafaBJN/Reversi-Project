@@ -5,44 +5,88 @@ import java.util.Scanner;
  */
 public abstract class Run {
     private static Scanner scan = new Scanner(System.in);
-    private static Game game = new Game();
+    private static Game game;
     private static int time;
-    private static boolean redoAvailable;
+    private static boolean redoAvailable = true;
     private static boolean autoSave;
     private static boolean autoScoreShow;
     private static boolean resumeble;
+    private static boolean systemPlayer = true;
+    private static boolean undoed;
 
     public static void main(String[] args) {
-        mainMenu();
+        resumeble = false;
         autoScoreShow = true;
         autoSave = true;
-
+        mainMenu();
     }
 
-    public static void twoPlayerGame(){
+    public static void playGame(){
         //White = 0 , Black = 1
         int turn;
+        int systemColor = 0;
+        if(systemPlayer) {
+            while (true) {
+                System.out.println("*Select Your Color*");
+                System.out.println("1)White");
+                System.out.println("2)Black");
+                try {
+                    systemColor = scan.nextInt();
+                    //for being out of menu
+                    if (systemColor != 2 && systemColor != 1) {
+                        System.out.println("!!! It's Unavailable !!!");
+                        continue;
+                    }
+                    systemColor = 3 - systemColor;
+                    break;
+                } catch (Exception e) {
+                    scan.nextLine();
+                    System.out.println("!!! WRONG INPUT !!!");
+                }
+            }
+        }
         while (true) {
+            System.out.println("*Select Who Start Game*");
+            System.out.println("1)White");
+            System.out.println("2)Black");
             try {
                 turn = scan.nextInt();
                 //for being out of menu
-                if (turn != 0 && turn != 1) {
+                if (turn != 2 && turn != 1) {
                     System.out.println("!!! It's Unavailable !!!");
                     continue;
                 }
+                turn--;
                 break;
             } catch (Exception e) {
+                scan.nextLine();
                 System.out.println("!!! WRONG INPUT !!!");
             }
         }
         game.gettingReady();
-        for (int i = 0, earlyEnd = 0; true; i++) {
-            time = i;
+        undoed = false;
+        int earlyEnd = 0;
+        for (time = 0; true; time++) {
+            System.out.println("time = " + time);
+            if(!undoed) {
+                game.getBoards().add(game.getGameBoardNow());
+                game.setGameBoardNow(new Board(game.getGameBoardNow()));
+                //game.getBoards().get(0).print();
+                undoed = false;
+            }
+            game.getBoards().get(0).print();
+            System.out.println("HYYH");
             int player = ((time + turn) % 2) + 1;
             game.findAvailableBlocks(player);
-            if(game.pass(player)) {
-                earlyEnd ++;
-                if(earlyEnd == 2){
+            if (game.endCheck()) {
+                game.getGameBoardNow().print();
+                break;
+            }
+            if (game.pass(player)) {
+                System.out.println("Pass");
+                earlyEnd++;
+                if (earlyEnd == 2) {
+                    game.getGameBoardNow().print();
                     System.out.println("There is NO Possible Place to Put");
                     break;
                 }
@@ -50,16 +94,25 @@ public abstract class Run {
             } else {
                 earlyEnd = 0;
             }
-            if(game.endCheck()){
-                break;
-            }
-            game.getGameBoardNow().print();
-            //gameMenu(player);
-            while(!game.putter(inputGetter(), player));
-            game.removeAvailableBlocks();
-            if(autoScoreShow) {
+            if (autoScoreShow)
                 game.showScores();
+            game.getGameBoardNow().print();
+            if(!systemPlayer) {
+                if (player == 1)
+                    System.out.println("White Turn");
+                else
+                    System.out.println("Black Turn");
             }
+            if(player == systemColor) {
+                game.putter(game.playWithSystem(), player);
+            }
+            else {
+               if(systemPlayer)
+                   System.out.println("Your Turn");
+                gameMenu(player);
+                //while (!game.putter(inputGetter(), player)) ;
+            }
+            game.removeAvailableBlocks();
         }
         System.out.println("End of Game");
         if(game.score(1) > game.score(2)){
@@ -110,6 +163,7 @@ public abstract class Run {
                     choice = 5;
                 return choice;
             } catch (Exception e) {
+                scan.nextLine();
                 System.out.println("!!! WRONG INPUT !!!");
             }
         }
@@ -119,25 +173,19 @@ public abstract class Run {
      *
      */
     public static void gameMenu(int player) {
-        if (player == 1) {
-            System.out.println("White Turn");
-        }
-        else {
-            System.out.println("Black Turn");
-        }
         int choice = dynamicGameMenuShow();
         switch (choice) {
             case 1:
                 while(!game.putter(inputGetter(), player));
                 break;
             case 2:
-                //undo(time);
+                undo();
                 break;
             case 3:
                 //redo();
                 break;
             case 4:
-                //game.showScore();
+                game.showScores();
                 break;
             case 5:
                 //save();
@@ -168,6 +216,7 @@ public abstract class Run {
                 }
                 break;
             } catch (Exception e) {
+                scan.nextLine();
                 System.out.println("!!! WRONG INPUT !!!");
             }
         }
@@ -179,10 +228,14 @@ public abstract class Run {
                     System.out.println("You have not started a game yet");
                 break;
             case 2:
-                newGame();
+                game = new Game();
+                systemPlayer = true;
+                playGame();
                 break;
             case 3:
-                newGame();
+                game = new Game();
+                systemPlayer = false;
+                playGame();
                 break;
             //case 4:
                 //load();
@@ -199,10 +252,6 @@ public abstract class Run {
                 System.exit(0);
                 break;
         }
-    }
-
-    public static void newGame(){
-
     }
 
     public static void resume(){
@@ -235,7 +284,7 @@ public abstract class Run {
         switch (choice) {
             case 1:
             case -1:
-                System.out.println("Not Ready Yet");
+                System.out.println("This Feature is Unavailable Now");
                 autoSave = true;
                 break;
             case 2:
@@ -255,7 +304,17 @@ public abstract class Run {
         }
     }
 
-    public abstract void undo();
+    public static void undo(){
+        if(time == 0){
+            System.out.println("It is First Move");
+            time--;
+            return;
+        }
+        time-=2;
+        game.setGameBoardNow(game.getBoards().get(time + 1));
+        game.getBoards().get(0).print();
+        undoed = true;
+    }
 
     public abstract void redo();
 
@@ -272,7 +331,7 @@ public abstract class Run {
                 }
             } catch (Exception e) {
                 System.out.println("!!! WRONG INPUT !!!");
-                scan.next();
+                scan.nextLine();
                 continue;
             }
             try {
