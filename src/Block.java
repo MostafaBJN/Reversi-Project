@@ -1,7 +1,10 @@
 import java.util.Objects;
 
 /**
+ * This Class is for each Block in
  *
+ * @version 0.6
+ * @author Mostafa_BJN
  */
 public class Block {
     private static final String BLACK_CIRCLE = "◉";
@@ -9,6 +12,7 @@ public class Block {
     private static final String EMPTY_BLOCK = "▢";
     private static final String AVAILABLE_BLOCK = "◍";
     private static boolean guideForPutting;
+    //Sign which shows in Board
     private String sign;
     //Coordinates Number : 1,2,3,4,5,6,7,8
     private int coordinatesNum;
@@ -18,18 +22,22 @@ public class Block {
     private int state;
 
     /**
+     * Make a new empty Block with given coordinates
      *
+     * @param coordinatesChar Horizontal coordinates
+     * @param coordinatesNum Vertical coordinates
      */
     public Block(char coordinatesChar, int coordinatesNum) {
         sign = "▢";
         this.coordinatesChar = coordinatesChar;
         this.coordinatesNum = coordinatesNum;
         state = 0;
-        guideForPutting = true;
     }
 
     /**
+     * Make a block colored
      *
+     * @param player the player which block fulled with its color
      */
     public void colorBlock(int player){
         state = player;
@@ -42,7 +50,9 @@ public class Block {
     }
 
     /**
+     * Make a block available for putting
      *
+     * @param player the player which block available for
      */
     public void availableBlock(int player){
         state = -player;
@@ -53,7 +63,7 @@ public class Block {
     }
 
     /**
-     *
+     * Make a block empty
      */
     public void emptyBlock(){
         state = 0;
@@ -74,26 +84,45 @@ public class Block {
         return Objects.hash(coordinatesNum, coordinatesChar);
     }
 
+    /**
+     * getter for sign
+     *
+     * @return sign
+     */
     public String getSign() {
         return sign;
     }
 
+    /**
+     * getter for state
+     *
+     * @return state parameter
+     */
     public int getState() {
         return state;
     }
 
-    public void setState(int state) {
-        this.state = state;
-    }
-
+    /**
+     * getter for Horizontal Coordinates of Block
+     *
+     * @return coordinatesNum parameter
+     */
     public int getCoordinatesNum() {
         return coordinatesNum;
     }
 
+    /**
+     * getter for Vertical Coordinates of Block
+     *
+     * @return coordinatesChar parameter
+     */
     public char getCoordinatesChar() {
         return coordinatesChar;
     }
 
+    /**
+     * setter for guideForPutting parameter
+     */
     public static void setGuideForPutting(boolean guideForPutting) {
         Block.guideForPutting = guideForPutting;
     }

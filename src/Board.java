@@ -1,15 +1,20 @@
 import java.util.ArrayList;
 
 /**
+ * Board class is for the board of Reversi game.
  *
+ * @version 0.2
+ * @author Mostafa_BJN
  */
 public class Board {
+    //number of Blocks in row for square of board of game
     static final int SIZE = 8;
+    //blocks of board
     private ArrayList<Block> blocks;
 
 
     /**
-     *
+     * Making a new Board for Game.
      */
     public Board(){
         blocks = new ArrayList<Block>();
@@ -18,7 +23,7 @@ public class Board {
 
 
     /**
-     *
+     * Make a board with SIZE*SIZE Blocks.
      */
     private void emptyBoardMaker(){
         for (int i = 1; i < SIZE + 1; i++) {
@@ -29,7 +34,7 @@ public class Board {
     }
 
     /**
-     *
+     * Show board to players.
      */
     public void print(){
         for (int i = 0; i < SIZE ; i++) {
@@ -48,16 +53,9 @@ public class Board {
     }
 
     /**
-     *
+     * getter for blocks arraylist.
      */
     public ArrayList<Block> getBlocks() {
         return blocks;
-    }
-
-    /**
-     *
-     */
-    public void setBlocks(ArrayList<Block> blocks) {
-        this.blocks = blocks;
     }
 }
